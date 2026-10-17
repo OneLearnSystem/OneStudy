@@ -1,9 +1,9 @@
-import {shell,brand,uiIcon,shopGrid,applyUITheme,cleanUI} from './refresh-ui.mjs';
-import {cfg,slug,demo,central,identity,login,signOut,link,esc,download} from './shared.mjs';
-import {oauth,finishOAuth,emailCode,verifyEmail} from './student-auth.mjs';
-import {roomHTML,rewardArt,applyShared} from './shared-world.mjs';
+import {shell,brand,uiIcon,shopGrid,applyUITheme,cleanUI} from './refresh-ui.mjs?v=11.1';
+import {cfg,slug,demo,central,identity,login,signOut,link,esc,download} from './shared.mjs?v=11.1';
+import {oauth,finishOAuth,emailCode,verifyEmail} from './student-auth.mjs?v=11.1';
+import {roomHTML,rewardArt,applyShared} from './shared-world.mjs?v=11.1';
 const app=document.querySelector('#app'),by=id=>document.getElementById(id);
-const [rewards,extras]=await Promise.all(['rewards.json','student-extras.json'].map(u=>fetch(u).then(r=>{if(!r.ok)throw Error('A required file is missing: '+u);return r.json()})));
+const rewards=await fetch('rewards.json?v=11.1').then(r=>{if(!r.ok)throw Error('Missing rewards.json');return r.json()});const extras={names:[],jokes:{}};
 const subjects={History:{icon:'🏛',colour:'#e9ddc7',caption:'Stories that shaped our world'},Geography:{icon:'⛰',colour:'#dce6d2',caption:'Explore the world around you'},French:{icon:'☕',colour:'#e8dfe9',caption:'A little French, every day'},German:{icon:'⌂',colour:'#dce6eb',caption:'Make new connections'}};
 let state,wallet,lesson,view='home',mode=sessionStorage.getItem('onehome-mode')==='student'?'student':'staff',code=sessionStorage.getItem('onehome-school')===slug?sessionStorage.getItem('onehome-code')||'':'';
 if(demo)mode=sessionStorage.getItem('onestudy-demo-mode')||'student';
@@ -14,7 +14,7 @@ const opts=(list,selected)=>list.map(x=>{const [v,t]=Array.isArray(x)?x:[x,x];re
 const fmt=x=>new Date(x).toLocaleString('en-GB',{dateStyle:'medium',timeStyle:'short'});
 const notify=message=>{by('notice').textContent=message;by('notice').classList.add('show');clearTimeout(notify.timer);notify.timer=setTimeout(()=>by('notice').classList.remove('show'),4500)};
 async function run(fn,el){if(el)el.disabled=true;try{await fn()}catch(e){notify(e.message)}finally{if(el?.isConnected)el.disabled=false}}
-async function rpc(action,data={},legacy=false){if(demo){const {demoCall}=await import('./study-demo.mjs');return demoCall(action,data,mode,legacy)}return central(legacy?'oh2_call':'oh10_call',{p_slug:slug,p_action:action,p_data:data,p_code:code},!!identity())}
+async function rpc(action,data={},legacy=false){if(demo){const {demoCall}=await import('./study-demo.mjs?v=11.1');return demoCall(action,data,mode,legacy)}return central(legacy?'oh2_call':'oh10_call',{p_slug:slug,p_action:action,p_data:data,p_code:code},!!identity())}
 async function refresh(){if(dirtyDraft){clearTimeout(draftTimer);dirtyDraft=false;await persist()}await saveQueue;state=await rpc(mode==='student'?'student':'staff');state.private||={};if(pupil())wallet=await rpc('wallet',{},true);else wallet=null;if(!filter.year)filter.year=String(state.student?.year||7);render()}
 async function persist(message=''){if(!pupil())return;const snapshot=structuredClone(state.private);saving++;saveQueue=saveQueue.catch(()=>{}).then(()=>rpc('save',{data:snapshot}));try{await saveQueue;if(message)notify(message)}finally{saving--}}
 function popup(title,html){const d=by('popup');d.innerHTML=`<form method="dialog"><button class="quiet close">Close</button></form><h2>${esc(title)}</h2>${html}`;d.showModal()}

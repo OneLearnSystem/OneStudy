@@ -23,7 +23,7 @@ export async function demoCall(action,a={},mode='student',legacy=false){
   save(s);return structuredClone({...w,earned:earned()});
  }
  let result;
- if(action==='student'||action==='staff')result={role:mode==='student'?'student':'teacher',settings:s.settings,school:s.school,student:mode==='student'?p:null,students:mode==='student'?[]:s.students,classes:mode==='student'?s.classes.filter(c=>p.class_ids.includes(c.id)):s.classes,catalog:lessons.map(({id,subject,year,title,summary,minutes,tags})=>({id,subject,year,title,summary,minutes,tags})),...structuredClone(d)};
+ if(action==='student'||action==='staff')result={role:mode==='student'?'student':mode==='admin'?'admin':'teacher',settings:s.settings,school:s.school,student:mode==='student'?p:null,students:mode==='student'?[]:s.students,classes:mode==='student'?s.classes.filter(c=>p.class_ids.includes(c.id)):s.classes,catalog:lessons.map(({id,subject,year,title,summary,minutes,tags})=>({id,subject,year,title,summary,minutes,tags})),...structuredClone(d)};
  if(action==='student')result.tasks=result.tasks.filter(t=>!t.archived&&new Date(t.release_at)<=new Date()&&p.class_ids.includes(t.class_id));
  if(action==='preview')result=lessons.find(x=>x.id===a.id);
  if(action==='lesson'){const l=lessons.find(x=>x.id===a.id);result={...l,questions:l.questions.map(({correct,...q})=>q)}}
